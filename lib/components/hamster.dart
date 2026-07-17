@@ -76,7 +76,7 @@ class Hamster extends PositionComponent
     PositionComponent other,
   ) {
     super.onCollisionStart(intersectionPoints, other);
-    if (other is Obstacle && game.isPlaying) {
+    if (other is Obstacle && game.isPlaying && game.hasStarted) {
       game.onGameOver();
     }
   }

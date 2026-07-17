@@ -5,6 +5,7 @@ import 'package:flutter/services.dart';
 import 'game/hamster_run_game.dart';
 import 'widgets/game_over_overlay.dart';
 import 'widgets/score_hud.dart';
+import 'widgets/tap_to_start_overlay.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -66,6 +67,7 @@ class _GameScreenState extends State<GameScreen> {
             overlayBuilderMap: {
               'HUD': (context, game) => ScoreHud(game: game),
               'GameOver': (context, game) => GameOverOverlay(game: game),
+              'TapToStart': (context, game) => const TapToStartOverlay(),
             },
             initialActiveOverlays: const ['HUD'],
           ),

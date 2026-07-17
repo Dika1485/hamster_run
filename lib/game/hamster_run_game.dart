@@ -19,7 +19,8 @@ class HamsterRunGame extends FlameGame with HasCollisionDetection {
   double gameSpeed = 300;
   double score = 0;
   int highScore = 0;
-  bool isPlaying = false;
+  bool isPlaying = false; // false = game over screen aktif
+  bool hasStarted = false; // false = belum tap, hamster lari tanpa obstacle
 
   final Random _random = Random();
   double _obstacleTimer = 0;
@@ -37,33 +38,33 @@ class HamsterRunGame extends FlameGame with HasCollisionDetection {
     add(Cloud(position: Vector2(220, 40), scale: 0.7, speed: 16));
     add(Cloud(position: Vector2(340, 100), scale: 1.2, speed: 8));
 
-    ground = Ground(position: Vector2(0, size.y - 44), width: size.x);
+    // posisi ground di tengah layar (55% dari atas), bukan mepet bawah
+    final groundY = size.y * 0.55;
+
+    ground = Ground(position: Vector2(0, groundY), width: size.x);
     add(ground);
 
-    hamster = Hamster(position: Vector2(70, size.y - 44));
-    hamster.groundY = size.y - 44;
+    hamster = Hamster(position: Vector2(70, groundY));
+    hamster.groundY = groundY;
     add(hamster);
 
-    _beginRun();
-  }
-
-  void _beginRun() {
-    isPlaying = true;
-    score = 0;
-    gameSpeed = 300;
-    _obstacleTimer = 0;
-    _nextObstacleIn = 1.4;
+    isPlaying = true; // ground & hamster mulai lari
+    overlays.add('TapToStart');
   }
 
   /// Dipanggil dari input (tap layar / spasi keyboard)
   void jump() {
-    if (isPlaying) {
-      hamster.jump();
+    if (!isPlaying) return;
+    if (!hasStarted) {
+      // tap pertama: mulai game (obstacle & skor aktif)
+      hasStarted = true;
+      overlays.remove('TapToStart');
     }
+    hamster.jump();
   }
 
   void registerObstaclePassed() {
-    if (isPlaying) {
+    if (hasStarted) {
       score += 5;
     }
   }
@@ -87,13 +88,19 @@ class HamsterRunGame extends FlameGame with HasCollisionDetection {
     children.whereType<Obstacle>().toList().forEach((o) => o.removeFromParent());
 
     hamster.resetToGround();
-    _beginRun();
+    score = 0;
+    gameSpeed = 300;
+    _obstacleTimer = 0;
+    _nextObstacleIn = 1.4;
+    hasStarted = false;
+    isPlaying = true;
+    overlays.add('TapToStart');
   }
 
   @override
   void update(double dt) {
     super.update(dt);
-    if (!isPlaying) return;
+    if (!isPlaying || !hasStarted) return;
 
     // skor bertambah seiring jarak/waktu
     score += dt * 12;
@@ -117,7 +124,7 @@ class HamsterRunGame extends FlameGame with HasCollisionDetection {
     final types = ObstacleType.values;
     final type = types[_random.nextInt(types.length)];
     final obstacle = Obstacle(
-      position: Vector2(size.x + 40, size.y - 44),
+      position: Vector2(size.x + 40, size.y * 0.55),
       type: type,
     );
     add(obstacle);

@@ -28,6 +28,13 @@ class Ground extends PositionComponent with HasGameReference<HamsterRunGame> {
 
   @override
   void render(Canvas canvas) {
+    // lapisan tanah solid sampai dasar layar (biar tidak mengambang)
+    final dirtPaint = Paint()..color = const Color(0xFF6D4C41);
+    canvas.drawRect(
+      Rect.fromLTWH(0, size.y * 0.4, size.x, game.size.y - position.y),
+      dirtPaint,
+    );
+
     final basePaint = Paint()..color = const Color(0xFF8BC34A);
     canvas.drawRect(Rect.fromLTWH(0, 0, size.x, size.y), basePaint);
 
